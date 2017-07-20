@@ -1,4 +1,4 @@
-﻿﻿# Consumer strategies
+﻿﻿#Consumer strategies
 
 This project aims to benchmark different kafka consumer strategies, in terms of throughput and consistency and provide qualitative kpis measurements
 
