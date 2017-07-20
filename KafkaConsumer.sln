@@ -44,6 +44,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnotherAsyncProcessingAutoC
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YetAnotherChunkedPollAsyncProcessingAutoCommitConsumer", "YetAnotherChunkedPollAsyncProcessingAutoCommitConsumer\YetAnotherChunkedPollAsyncProcessingAutoCommitConsumer.csproj", "{0800C327-75AB-4227-9829-7EA699D44D35}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{317A8F8E-0530-47BA-AB26-16F3B0C09FE0}"
+	ProjectSection(SolutionItems) = preProject
+		readme.md = readme.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
