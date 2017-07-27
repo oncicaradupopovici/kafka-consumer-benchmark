@@ -1,0 +1,102 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Business;
+using Business.Contracts;
+using Confluent.Kafka;
+using Confluent.Kafka.Serialization;
+using DataAccess;
+
+namespace ChunkedPollAsyncProcessingBatchManualCommitConsumer
+{
+    public class Consumer
+    {
+        private readonly Consumer<string, string> _consumer;
+        private readonly string _consumerGroup;
+        private Dao _dao;
+        private readonly IMessageHandler _handler;
+
+        public Consumer(DataAccess.Dao dao, IMessageHandler handler, string consumerGroup)
+        {
+            _dao = dao;
+            _handler = handler;
+            _consumerGroup = consumerGroup;
+
+            var config = new Dictionary<string, object>
+            {
+                {"group.id", _consumerGroup},
+                {"bootstrap.servers", "10.1.3.166:19092,10.1.3.166:29092,10.1.3.166:39092"},
+                {"enable.auto.commit", "false"},
+                {"auto.offset.reset", "earliest"}
+            };
+            _consumer = new Consumer<string, string>(config, new StringDeserializer(Encoding.UTF8),
+                new StringDeserializer(Encoding.UTF8));
+        }
+
+        public void Subscribe(string topicName)
+        {
+            //_consumer.OnMessage += async (_, msg) =>
+            //{
+            //    var businessMsg = new Business.Message(msg.Value, msg.Key, _consumerGroup, _consumer.MemberId, topicName, msg.Partition, msg.Offset.Value);
+            //    await _handler.HandleAsync(businessMsg);
+
+            //};
+
+            _consumer.OnPartitionsAssigned += (_, partitions) =>
+            {
+                Console.WriteLine($"Assigned partitions: [{string.Join(", ", partitions)}]");
+                _consumer.Assign(partitions);
+            };
+
+            _consumer.OnPartitionsRevoked += (_, partitions) =>
+            {
+                Console.WriteLine($"Revoked partitions: [{string.Join(", ", partitions)}]");
+                _consumer.Unassign();
+            };
+
+            _consumer.Subscribe(topicName);
+        }
+
+
+        //public void Poll()
+        //{
+        //    _consumer.Poll(TimeSpan.FromMilliseconds(100));
+        //}
+
+        public async Task ConsumeProcessAndCommitBatchAsync(int batchSize)
+        {
+            var tasks = new Task<bool>[batchSize];
+            for (var i = 0; i < batchSize; i++)
+            {
+                tasks[i] = ConsumeAndProcessOneMessageAsync();
+            }
+
+            var results = await Task.WhenAll(tasks);
+            if (results.Any(result => result))
+            {
+                await CommitAsync();
+            }
+        }
+
+        private async Task<bool> ConsumeAndProcessOneMessageAsync()
+        {
+            _consumer.Consume(out Message<string, string>  msg, TimeSpan.FromMilliseconds(100));
+            if(msg == null)
+                return false;
+
+            var businessMsg = new Business.Message(msg.Value, msg.Key, _consumerGroup, _consumer.MemberId, msg.Topic, msg.Partition, msg.Offset.Value);
+            await _handler.HandleAsync(businessMsg);
+
+            return true;
+        }
+
+        private async Task CommitAsync()
+        {
+            await _consumer.CommitAsync();
+        }
+
+    }
+}

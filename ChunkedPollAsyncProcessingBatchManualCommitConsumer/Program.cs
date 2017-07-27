@@ -1,15 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Business;
 using KafkaConsts;
 
-namespace ChunkedPollAsyncProcessingAutoCommitConsumer
+namespace ChunkedPollAsyncProcessingBatchManualCommitConsumer
 {
     class Program
     {
         static void Main(string[] args)
         {
-            var consumerGroup = args.Length > 0 ? args[0] : "NEW__CHUNKED_POLL_ASYNC_PROCESSING_AUTO_COMMIT_CONSUMER_14";
+            var consumerGroup = args.Length > 0 ? args[0] : "NEW__CHUNKED_POLL_ASYNC_PROCESSING_BATCH_MANUAL_COMMIT_CONSUMER_10";
             Console.WriteLine($"Consumer group: {consumerGroup}");
 
             try
@@ -33,18 +34,15 @@ namespace ChunkedPollAsyncProcessingAutoCommitConsumer
             var consumer = new Consumer(dao, msgHandler, consumerGroup);
             consumer.Subscribe(KafkaConfig.TopicName);
 
-            var chunkSize = 10;
-            var chunkIndex = 0;
 
             while (true)
             {
-                consumer.Poll();
-                if (chunkIndex++ == chunkSize)
-                {
-                    chunkIndex = 0;
-                    await Task.Delay(1);
-                }
+                await consumer.ConsumeProcessAndCommitBatchAsync(100);
+
             }
         }
+
+
+        
     }
 }

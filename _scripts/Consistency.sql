@@ -29,7 +29,11 @@ where not exists(
 
 
 --missing incomplete test
-select partition, max(offset), count(*)-1
-from RESILIENCE_TEST__SYNC_PROCESSING_SYNC_COMMIT_CONSUMER_3
-group by partition
+select do.partition, max(do.offset) as MAX_OFFSET, count(*) as CNT
+from (
+	select distinct partition, offset
+	from RESILIENCE_PDPU_TEST__ANOTHER_CHUNKED_POLL_ASYNC_PROCESSING_AUTO_COMMIT_CONSUMER_3 with (NOLOCK)
+) as do
+group by do.partition
+having  max(do.offset) <> (count(*) -1)
 

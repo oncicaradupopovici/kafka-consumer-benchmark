@@ -30,8 +30,9 @@ namespace AnotherChunkedPollAsyncProcessingAutoCommitConsumer
         static async Task MainAsync(string consumerGroup)
         {
             var dao = new DataAccess.Dao();
-            var msgHandler = new MessageHandler(dao);
+            //var msgHandler = new MessageHandler(dao);
             //var msgHandler = new DeduplicationDecorator(new Business.MessageHandler(dao), dao);
+            var msgHandler = new SlowExecutionDecorator(new Business.MessageHandler(dao));
             var consumer = new Consumer(dao, msgHandler, consumerGroup);
             consumer.Subscribe(KafkaConfig.TopicName);
 

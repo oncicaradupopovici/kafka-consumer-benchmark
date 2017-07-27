@@ -9,7 +9,7 @@ namespace ChunkedPollAsyncProcessingBatchSyncCommitConsumer
     {
         static void Main(string[] args)
         {
-            var consumerGroup = args.Length > 0 ? args[0] : "NEW__CHUNKED_POLL_ASYNC_PROCESSING_BATCH_SYNC_COMMIT_CONSUMER_10";
+            var consumerGroup = args.Length > 0 ? args[0] : "NEW__CHUNKED_POLL_ASYNC_PROCESSING_BATCH_SYNC_COMMIT_CONSUMER_11";
             Console.WriteLine($"Consumer group: {consumerGroup}");
 
             try
