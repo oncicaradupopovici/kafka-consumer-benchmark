@@ -13,14 +13,14 @@ namespace Producer
         static void Main(string[] args)
         {
             var config = new Dictionary<string, object> {
-                { "bootstrap.servers", "10.1.3.166:19092,10.1.3.166:29092,10.1.3.166:39092" },
+                { "bootstrap.servers", "10.1.3.220:30087" },
                 //{ "socket.timeout.ms", 6000 },
                 //{"socket.blocking.max.ms", 1000 },
                 //{"session.timeout.ms", 6000 },
                 //{"metadata.request.timeout.ms", 6000 },
             };
-            var topicName = "test-topic-6";
-            var msgCnt = 100000;
+            var topicName = "test-topic-7";
+            var msgCnt = 100;
             using (var producer = new Producer<string, string>(config, new StringSerializer(Encoding.UTF8), new StringSerializer(Encoding.UTF8)))
             {
                 var tasks = new Task[msgCnt];
